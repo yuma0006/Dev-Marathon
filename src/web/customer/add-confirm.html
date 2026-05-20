@@ -3,16 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>案件情報入力</title>
+    <title>顧客情報確認</title>
     <!-- Bootstrap CSSの読み込み -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <!-- ここにHTMLを書く -->
+        <h2 class="mb-4">入力内容の確認</h2>
+        <table class="table">
+            <tr><th>会社名</th><td id="companyName"></td></tr>
+            <tr><th>業種</th><td id="industry"></td></tr>
+            <tr><th>連絡先</th><td id="contact"></td></tr>
+            <tr><th>所在地</th><td id="location"></td></tr>
+        </table>
+        <button id="back-btn" class="btn btn-secondary">戻る</button>
+        <button id="confirm-btn" class="btn btn-primary">登録する</button>
     </div>
     <script type="module">
-        <!-- ここにJSを書く -->
+        import config from '../config.js';
+
+        const data = JSON.parse(sessionStorage.getItem('customerFormData'));
+        document.getElementById('companyName').textContent = data.companyName;
+        document.getElementById('industry').textContent = data.industry;
+        document.getElementById('contact').textContent = data.contact;
+        document.getElementById('location').textContent = data.location;
+
+        document.getElementById('back-btn').addEventListener('click', () => {
+            window.location.href = '/customer/add.html';
+        });
+
+        document.getElementById('confirm-btn').addEventListener('click', () => {
+            fetch(config.apiUrl + '/add-customer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(data)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    sessionStorage.removeItem('customerFormData');
+                    window.location.href = '/customer/list.html';
+                } else {
+                    alert('登録に失敗しました。');
+                }
+            })
+            .catch(err => console.error(err));
+        });
     </script>
     <!-- BootstrapのJavaScriptの読み込み -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
